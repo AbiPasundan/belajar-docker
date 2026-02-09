@@ -85,3 +85,23 @@ untuk melihat log aplikasi kita bisa menggunakan perintah docker container logs 
 
 jika kita ingin melihatnya secara realtime kita bisa menggunakan
 * docker container logs -f contohredis # menambahkan flag -f sebelum nama container
+
+## Container Exec
+
+saat menggunakan container, aplikasi yang terdapat di dalam container hanya bisa diakses dari dalam container
+oleh karena itu kadang kita perlu masuk ke dalam containernya
+untuk masuknya kita bisa menggunakan container exec, digunakan untuk mengeksekusi kode program yang terdapat di dalam container
+
+### masuk ke dalam container
+
+- untuk masuk kedalam container, kita bisa mencoba mengeksekusi program bash script yang terdapat didalam container dengan bantuan container exec
+docker container exec -i -t contohredis /bin/bash
+
+-i => adalah argument interaktif, menjaga input tetap aktif
+-t => adalah argument untuk alokasi psudo-TTY (terminal akses)
+/bin/bash => contoh kode program yang terdapat di dalam container
+
+hukumnya wajib hhe wkwwkkw
+
+* docker container exec -i -t contohredis /bin/bash
+* docker container exec -it contohredis /bin/bash # sort cut
