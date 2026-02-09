@@ -105,3 +105,68 @@ hukumnya wajib hhe wkwwkkw
 
 * docker container exec -i -t contohredis /bin/bash
 * docker container exec -it contohredis /bin/bash # sort cut
+
+## Container Port
+
+saat menjalankan image, image tersebut akan menjadi container dan container tersebut terisolali di dalam Docker 
+artinya sistem hosy (misal laptop yang sedang digunakan) tidak bisa mengakses aplikasi yang ada di dalam container secara langung, jadi jika ingin mengakses container harus menjalankan container dulu dengan 'container exec' supaya bisa masuk ke dalam container
+aplikasi akan berjalan di port tertentu, misal redis akan berjalan di port 6379 kita bisa melihat port apa saja yang digunakan dengan melihat semua daftar container
+
+misal jika kita mengakses port dari redis kita tidak bisa melakukannya karena port tersebut telah terisolasi oleh docker
+
+### port fowarding
+
+Docker memiliki kemampuan untuk melakukan port fowarding, yaitu meneruskan sebuah port yang terdapat di sistem hostnya ke dalam docker container
+cara ini cocok jika kita ingin mengekspos port yang terdapat di container ke luar melalui sistem hostnya
+
+- melakukan port fowarding
+
+commond comand
+untuk membuat port fowarding kita harus menentukan portnya dari awal jika sudah terlanjut membuattanpa menentukan portnya maka disarankan untuk buat ulang
+
+untuk melakukan port fowarding bisa menggunakan perintah berikut ketika membuat containernya:
+* docker container create --name namacontainer --publish posthost:portcontainer image:tag
+jika ingin melakukan port fowarding lebih dari satu bisa menambahkan dua kali parameter --publish
+
+--publish bisa disingkat dengan -p
+
+example command
+* docker container create --name nginx --publish 8080:80 nginx:latest
+
+## Container Environment Variable
+
+Salah satu teknik agar config bisa diubah secara dinamis
+dengan menggunakan container enviorment varibale kita bisa mengubah config tanpa harus mengubah kode aplikasinya lagi
+Docker Container memiliki parameter yang bisa kita gunakan untuk mengirim enviorment variable ke aplikasi yang terdapat di dalam container
+
+untuk menambah enviorment variable kita bisa menggunakan --env atau e contoh
+* docker container create --name namacontainer --env KEY="value" --env KEY2="value" image:tag
+* docker container create --name container --publish 27017:27017 --env MONGO_INITDB_ROOT_USERNAM=hello --env MONGO_INITDB_ROOT_PASSWORD=test mongo:latest
+
+## Container Stats
+
+Saat menjalankan beberapa container di sistem host penggunaan resource seperti cpu dan memory hanya terlihat digunakan oleh docker saja 
+kadang kita inign melihat detail dari penggunaan resource untuk tiap containernya
+Docker bisa melihat penggunaan resource dari tiap container yang sedang berjalan dengan perintah
+
+* docker container stats
+
+## Container Resource Limit
+
+by default docker akan menggunakan semua CPU dan Memory yang diberikan ke Docker (Mac dan Wingdow)  dan akan menggunakan semua CPU dan Memory yang tersedia di sistem host (Linux)
+Jika terjadi kesalahan, misal container terlalu banyak memakan CPU dan memory maka bisa berdampak pada performa container lain atau bahkan ke sistem host
+jadi ada baiknya ketika membuat container kita memberikan resource limit terhadapt containernya
+
+### Memory
+
+* saat membuat memory kita bisa menentukan jumlah memory yang bisa digunakan oleh container dengan menggubakan --memory diikuti dengan angka memory yang diperbolehkan untuk digunakan
+* Kita bisa menambahkan ukuran dalam bentuk b (bytes), k(kilo bytes) , m(mega bytes), atau g(giga bytes) misal 100m artinya 100mb
+
+### CPU
+
+Selain mengatur memory, kita dapat mengatur berapa jumlah CPU yang bisa digunakan oleh container dengan parameter --cpus
+Jika misal kita set dengan nilai 1.5 artinya container bisa menggunakan satu dan setengan CPU core
+
+### menambah resource limit
+
+docker create --name smallnginx --memory 100m --cpus 0.5 --publish 8081:80  nginx:latest
