@@ -89,6 +89,8 @@ by default jika tidak menggunakan tag maka versi yang akan digunakan adalah vers
 * `docker container create --name contohredis redis:latest`
 * `docker container create --name ubutntu:ssh ubuntu:noble`
 
+perintah `docker container create ...` bisa diganti dengan `docker run`
+
 menjalankan container
 untuk menjalanakan image sehingga bisa menjadi container perintahnya
 `container start namacontainer/containerid`
@@ -169,7 +171,7 @@ contoh perintah
 
 ## Container Environment Variable
 
-Environment Variable salah satu teknik agar config bisa diubah secara dinamis
+environment Variable salah satu teknik agar config bisa diubah secara dinamis
 Dengan menggunakan container enviorment varibale kita bisa mengubah config tanpa harus mengubah kode aplikasinya lagi
 Docker Container memiliki parameter yang bisa kita gunakan untuk mengirim enviorment variable ke aplikasi yang terdapat di dalam container
 
@@ -214,3 +216,47 @@ Jika misal kita set dengan nilai 1.5 artinya container bisa menggunakan satu dan
 Example Command:
 
 `docker create --name smallnginx --memory 100m --cpus 0.5 --publish 8081:80  nginx:latest`
+
+## Bind Mount
+
+Bind Mount merupakan kemampuan melakukan Mountting (sharing) file atau folder yang terdapat di sistem host ke container yang terdapat di docker
+Fitur ini sangat berguna ketika misal kita ingin mengirim konfigurasi dari luar container, atau misal menyimpan data yang dibuat di aplikasi di dalam container ke dalam folder di sistem host
+Jika file atau folder tidak ada di sistem host, secara otomatis akan dibuatkan oleh docker tetapi disarankan folder sudah dibuat terlebih dahulu di host untuk menghindari masalah permission.
+Untuk melakukan mounting, kita bisa menggunakan parameter `--mount` ketika membuat container
+Isi dari parameter `--mount` memiliki aturan tersendiri
+
+| Parameter     | keterangan                                                                        |
+| ------------- |:---------------------------------------------------------------------------------:|
+| type          | Tipe mount, bind atau volume                                                      |
+| source        | Lokasi file atau folder di sistem host                                            |
+| destination   | Lokasi file atau folder di container                                              |
+| readonly      | Jika ada, maka file atau folder hanya bisa dibaca di container, tidak bisa ditulis|
+
+Source itu lokasi file yang akan di mount ke dalam container
+Destination lokasi file atau folder di dalam container
+readonly hanya membaca
+
+### Melakukan Mounting
+
+Untuk melakukan mounting kita bisa menggunakan perintah berikut:
+
+* `docker container create --name namacontainer --mount "type=bind,source=folder,destination=/folder,readonly" image:tag`
+
+contoh perintah:
+
+* `docker container create --name mongodata --mount "type=bind,source=~/Documents/docker,destination=/data/db" --publish 27018:27017 --env MONGO_INITDB_ROOT_USERNAME=helo --env MONGO_INITDB_ROOT_PASSWORD=test mongo:latest`
+
+penjelasan perintah:
+
+* `docker container create` => membuat container baru dari image dalam keadaab stop
+* `--name mongodata` => memberikan nama pada container yang dibuat
+* `--mount "type=bind,source=~/Documents/docker,destination=/data/db"` => bind mount yaitu menghubungkan folder host dengan folder di dalam container
+  * `type=bind` => artinta menggunakan bind mount bukan volume
+  * `source=~/Documents/docker` => folder host yang akan digunakan
+  * `destination=/data/db` => folder didalam container. dengan bind mounth database disimpan didalam host data tidak hilang walaupun container dihapus
+* `--publish 27018:27017` => port fowarding artinya port 27017 di container (default MongoDB) diteruskan ke port 27018 di host sehingga di host jika kita ingin akses mongo `localhost:27018` bukan `localhost:27017`
+* `--env MONGO_INITDB_ROOT_USERNAME=helo` => Environment variable untuk konfigurasi MongoDB saat pertama kali dijalankan. Ini akan membuat user root dengan nama `helo`
+* `--env MONGO_INITDB_ROOT_PASSWORD=test` => password untuk root mongodb `test`. Kedua env ini hanya digunakan saat database pertama kali dibuat. Kalau data sudah ada di /data/db, perubahan env ini tidak akan mengubah password lagi.
+* `mongo:latest` => image yang digunakan
+
+Untuk mengetahui folder destination data bisa melihat image atau container docs
